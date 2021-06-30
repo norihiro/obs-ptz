@@ -9,57 +9,6 @@
 #include "ptz-device.hpp"
 #include "ptz-visca.hpp"
 
-PTZListModel PTZDevice::ptz_list_model;
-QVector<PTZDevice *> PTZDevice::devices;
-
-int PTZListModel::rowCount(const QModelIndex& parent) const
-{
-	Q_UNUSED(parent);
-	return PTZDevice::device_count();
-}
-
-Qt::ItemFlags PTZListModel::flags(const QModelIndex &index) const
-{
-	if (!index.isValid())
-		return Qt::ItemIsEnabled;
-	return QAbstractListModel::flags(index) | Qt::ItemIsEditable;
-}
-
-QVariant PTZListModel::data(const QModelIndex &index, int role) const
-{
-	if (!index.isValid())
-		return QVariant();
-
-	if (role == Qt::DisplayRole || role == Qt::EditRole) {
-		return PTZDevice::get_device(index.row())->objectName();
-	}
-#if 0
-	if (role == Qt::UserRole) {
-		return PTZDevice::get_device(index.row());
-	}
-#endif
-	return QVariant();
-}
-
-bool PTZListModel::setData(const QModelIndex &index, const QVariant &value, int role)
-{
-	if (index.isValid() && role == Qt::EditRole) {
-		PTZDevice *ptz = PTZDevice::get_device(index.row());
-		if (ptz)
-			ptz->setObjectName(value.toString());
-		emit dataChanged(index, index);
-	}
-	return false;
-}
-
-PTZDevice *PTZDevice::get_device_by_name(QString &name)
-{
-	for (auto ptz : devices)
-		if (name == ptz->objectName())
-			return ptz;
-	return NULL;
-}
-
 PTZDevice *PTZDevice::make_device(OBSData config)
 {
 	PTZDevice *ptz = nullptr;
@@ -76,12 +25,6 @@ PTZDevice *PTZDevice::make_device(OBSData config)
 
 void PTZDevice::set_config(OBSData config)
 {
-	const char *name = obs_data_get_string(config, "name");
-	if (name) {
-		setObjectName(name);
-		ptz_list_model.do_reset();
-	}
-
 	/* Update the list of preset names */
 	OBSDataArray preset_array = obs_data_get_array(config, "presets");
 	obs_data_array_release(preset_array);
@@ -104,7 +47,6 @@ OBSData PTZDevice::get_config()
 	OBSData config = obs_data_create();
 	obs_data_release(config);
 
-	obs_data_set_string(config, "name", qPrintable(objectName()));
 	obs_data_set_string(config, "type", type.c_str());
 	QStringList list = preset_names_model.stringList();
 	OBSDataArray preset_array = obs_data_array_create();
