@@ -35,13 +35,13 @@ public:
 
 	static PTZDevice* make_device(OBSData config);
 
-	virtual void pantilt(double pan, double tilt) { Q_UNUSED(pan); Q_UNUSED(tilt); }
+	virtual void pantilt(int pan, int tilt) { Q_UNUSED(pan); Q_UNUSED(tilt); }
 	virtual void pantilt_rel(int pan, int tilt) { Q_UNUSED(pan); Q_UNUSED(tilt); }
 	virtual void pantilt_stop() { }
 	virtual void pantilt_home() { }
 	virtual void zoom_stop() { }
-	virtual void zoom_tele(double speed) { Q_UNUSED(speed); }
-	virtual void zoom_wide(double speed) { Q_UNUSED(speed); }
+	virtual void zoom_tele(int speed) { Q_UNUSED(speed); }
+	virtual void zoom_wide(int speed) { Q_UNUSED(speed); }
 	virtual void memory_set(int i) { Q_UNUSED(i); }
 	virtual void memory_recall(int i) { Q_UNUSED(i); }
 	virtual void memory_reset(int i) { Q_UNUSED(i); }

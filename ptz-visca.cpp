@@ -345,11 +345,13 @@ void PTZVisca::send_pending()
 	timeout_timer.start(2000);
 }
 
-void PTZVisca::pantilt(double pan_, double tilt_)
+void PTZVisca::pantilt(int pan, int tilt)
 {
-	int pan = (pan_ > 1 ? 1 : (pan_ < -1 ? -1 : pan_)) * 0x18;
-	int tilt = (tilt_ > 1 ? 1 : (tilt_ < -1 ? -1 : tilt_)) * 0x14;
-	send(VISCA_PanTilt_drive, {pan, -tilt});
+	if      (pan < -0x18) pan = -0x18;
+	else if (pan > +0x18) pan = +0x18;
+	if      (tilt < -0x14) tilt = -0x14;
+	else if (tilt > +0x14) tilt = +0x14;
+	send(VISCA_PanTilt_drive, {pan, tilt});
 }
 
 void PTZVisca::pantilt_rel(int pan, int tilt)
@@ -367,15 +369,17 @@ void PTZVisca::pantilt_home()
 	send(VISCA_PanTilt_Home);
 }
 
-void PTZVisca::zoom_tele(double speed_)
+void PTZVisca::zoom_tele(int speed)
 {
-	int speed = (speed_ > 1 ? 1 : (speed_ < 0 ? 0 : speed_)) * 0x7;
+	if      (speed < 0) speed = 0;
+	else if (speed > 0x7) speed = 0x7;
 	send(VISCA_CAM_Zoom_TeleVar, { speed });
 }
 
-void PTZVisca::zoom_wide(double speed_)
+void PTZVisca::zoom_wide(int speed)
 {
-	int speed = (speed_ > 1 ? 1 : (speed_ < 0 ? 0 : speed_)) * 0x7;
+	if      (speed < 0) speed = 0;
+	else if (speed > 0x7) speed = 0x7;
 	send(VISCA_CAM_Zoom_WideVar, { speed });
 }
 
