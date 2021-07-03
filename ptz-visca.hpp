@@ -188,13 +188,11 @@ protected:
 	QList<ViscaCmd> pending_cmds;
 	bool active_cmd[8];
 	bool sent_cmd[8];
-	QTimer timeout_timer;
 
 	virtual void send_immediate(const QByteArray &msg) = 0;
 	void send(const ViscaCmd &cmd);
 	void send(const ViscaCmd &cmd, const QList<int> &args);
 	void send_pending();
-	void timeout();
 
 protected slots:
 	void receive(const QByteArray &msg);
@@ -223,6 +221,7 @@ public:
 	int get_pan() override;
 	int get_tilt() override;
 	int get_zoom() override;
+	void timeout() override;
 };
 
 /*

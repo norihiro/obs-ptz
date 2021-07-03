@@ -61,6 +61,7 @@ public:
 	virtual int get_pan() = 0;
 	virtual int get_tilt() = 0;
 	virtual int get_zoom() = 0;
+	virtual void timeout() {}
 };
 
 class PTZSimulator : public PTZDevice

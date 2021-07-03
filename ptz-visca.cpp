@@ -263,7 +263,6 @@ PTZVisca::PTZVisca(std::string type)
 		active_cmd[i] = false;
 	for (int i = 0; i < 8; i++)
 		sent_cmd[i] = false;
-	connect(&timeout_timer, &QTimer::timeout, this, &PTZVisca::timeout);
 }
 
 void PTZVisca::send(const ViscaCmd &cmd)
@@ -318,7 +317,6 @@ void PTZVisca::receive(const QByteArray &msg)
 
 		/* Slot 0 responses are inquiries that need to be parsed */
 		if (slot == 0) {
-			timeout_timer.stop();
 			pending_cmds.first().decode(this, msg);
 			pending_cmds.removeFirst();
 
@@ -333,8 +331,6 @@ void PTZVisca::receive(const QByteArray &msg)
 	case VISCA_RESPONSE_ERROR:
 		active_cmd[slot] = false;
 		sent_cmd[slot] = false;
-		if (slot == 0)
-			timeout_timer.stop();
 		blog(LOG_INFO, "VISCA %s received error: %s", qPrintable(objectName()), msg.toHex(':').data());
 		break;
 	default:
@@ -351,8 +347,6 @@ void PTZVisca::send_pending()
 	active_cmd[0] = true;
 	sent_cmd[0] = true;
 	send_immediate(pending_cmds.first().cmd);
-	timeout_timer.setSingleShot(true);
-	timeout_timer.start(2000);
 }
 
 bool PTZVisca::got_ack()
