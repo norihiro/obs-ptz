@@ -261,12 +261,15 @@ PTZVisca::PTZVisca(std::string type)
 {
 	for (int i = 0; i < 8; i++)
 		active_cmd[i] = false;
+	for (int i = 0; i < 8; i++)
+		sent_cmd[i] = false;
 	connect(&timeout_timer, &QTimer::timeout, this, &PTZVisca::timeout);
 }
 
 void PTZVisca::send(const ViscaCmd &cmd)
 {
 	if (cmd.cmd[1] == (char)0x01) { // command packets get sent immediately
+		sent_cmd[0] = true;
 		send_immediate(cmd.cmd);
 	} else {
 		pending_cmds.append(cmd);
@@ -285,6 +288,7 @@ void PTZVisca::timeout()
 {
 	blog(LOG_INFO, "VISCA %s timeout", qPrintable(objectName()));
 	active_cmd[0] = false;
+	sent_cmd[0] = false;
 	pending_cmds.clear();
 }
 
@@ -302,7 +306,7 @@ void PTZVisca::receive(const QByteArray &msg)
 
 	switch (msg[1] & 0xf0) {
 	case VISCA_RESPONSE_ACK:
-		active_cmd[slot] = true;
+		sent_cmd[slot] = false;
 		break;
 	case VISCA_RESPONSE_COMPLETED:
 		if (!active_cmd[slot]) {
@@ -310,6 +314,7 @@ void PTZVisca::receive(const QByteArray &msg)
 			break;
 		}
 		active_cmd[slot] = false;
+		sent_cmd[slot] = false;
 
 		/* Slot 0 responses are inquiries that need to be parsed */
 		if (slot == 0) {
@@ -327,6 +332,7 @@ void PTZVisca::receive(const QByteArray &msg)
 		break;
 	case VISCA_RESPONSE_ERROR:
 		active_cmd[slot] = false;
+		sent_cmd[slot] = false;
 		if (slot == 0)
 			timeout_timer.stop();
 		blog(LOG_INFO, "VISCA %s received error: %s", qPrintable(objectName()), msg.toHex(':').data());
@@ -343,9 +349,21 @@ void PTZVisca::send_pending()
 	if (active_cmd[0] || pending_cmds.isEmpty())
 		return;
 	active_cmd[0] = true;
+	sent_cmd[0] = true;
 	send_immediate(pending_cmds.first().cmd);
 	timeout_timer.setSingleShot(true);
 	timeout_timer.start(2000);
+}
+
+bool PTZVisca::got_ack()
+{
+	if (sent_cmd[0])
+		return false;
+	if (!pending_cmds.isEmpty())
+		return false;
+	if (active_cmd[0])
+		return false;
+	return true;
 }
 
 void PTZVisca::pantilt(int pan, int tilt)
@@ -372,6 +390,11 @@ void PTZVisca::pantilt_home()
 	send(VISCA_PanTilt_Home);
 }
 
+void PTZVisca::pantilt_inquiry()
+{
+	send(VISCA_PanTilt_PosInq);
+}
+
 void PTZVisca::zoom_tele(int speed)
 {
 	if      (speed < 0) speed = 0;
@@ -391,6 +414,11 @@ void PTZVisca::zoom_stop()
 	send(VISCA_CAM_Zoom_Stop);
 }
 
+void PTZVisca::zoom_inquiry()
+{
+	send(VISCA_CAM_ZoomPosInq);
+}
+
 void PTZVisca::memory_reset(int i)
 {
 	send(VISCA_CAM_Memory_Reset, {i});
@@ -404,6 +432,21 @@ void PTZVisca::memory_set(int i)
 void PTZVisca::memory_recall(int i)
 {
 	send(VISCA_CAM_Memory_Recall, {i});
+}
+
+int PTZVisca::get_pan()
+{
+	return property("pan_pos").toInt();
+}
+
+int PTZVisca::get_tilt()
+{
+	return property("tilt_pos").toInt();
+}
+
+int PTZVisca::get_zoom()
+{
+	return property("zoom_pos").toInt();
 }
 
 /*

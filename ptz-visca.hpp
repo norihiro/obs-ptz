@@ -187,6 +187,7 @@ protected:
 	unsigned int address;
 	QList<ViscaCmd> pending_cmds;
 	bool active_cmd[8];
+	bool sent_cmd[8];
 	QTimer timeout_timer;
 
 	virtual void send_immediate(const QByteArray &msg) = 0;

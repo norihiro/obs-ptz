@@ -54,6 +54,13 @@ public:
 
 	virtual void set_config(OBSData ptz_config);
 	virtual OBSData get_config();
+
+	virtual void zoom_inquiry() = 0;
+	virtual void pantilt_inquiry() = 0;
+	virtual bool got_ack() = 0;
+	virtual int get_pan() = 0;
+	virtual int get_tilt() = 0;
+	virtual int get_zoom() = 0;
 };
 
 class PTZSimulator : public PTZDevice
@@ -70,4 +77,11 @@ public:
 	void zoom_stop() override { qDebug() << __func__; }
 	void zoom_tele(int speed) override { blog(LOG_INFO, "%s %f", __func__, speed); }
 	void zoom_wide(int speed) override { blog(LOG_INFO, "%s %f", __func__, -speed); }
+
+	void zoom_inquiry() override {}
+	void pantilt_inquiry() override {}
+	bool got_ack() override { return 1; }
+	int get_pan() override { return 0; }
+	int get_tilt() override { return 0; }
+	int get_zoom() override { return 0; }
 };
