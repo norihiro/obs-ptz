@@ -12,6 +12,7 @@
 std::map<QString, ViscaUART*> ViscaUART::interfaces;
 std::map<int, ViscaUDPSocket*> ViscaUDPSocket::interfaces;
 
+namespace {
 const ViscaCmd VISCA_ENUMERATE("883001ff");
 const ViscaCmd VISCA_IF_CLEAR("88010001ff");
 
@@ -244,6 +245,7 @@ const ViscaCmd VISCA_PanTilt_LimitSetUpRight( "8101060700010000000000000000ff", 
 const ViscaCmd VISCA_PanTilt_LimitSetDownLeft("8101060700000000000000000000ff", {new visca_u16("pan_limit_left", 6), new visca_u16("tilt_limit_down", 10)});
 const ViscaCmd VISCA_PanTilt_LimitClearUpRight( "810106070101070f0f0f070f0f0fff", {new visca_u16("pan_limit_right", 6), new visca_u16("tilt_limit_up", 10)});
 const ViscaCmd VISCA_PanTilt_LimitClearDownLeft("810106070100070f0f0f070f0f0fff", {new visca_u16("pan_limit_left", 6), new visca_u16("tilt_limit_down", 10)});
+} // namespace
 
 #define VISCA_RESPONSE_ADDRESS   0x30
 #define VISCA_RESPONSE_ACK       0x40
