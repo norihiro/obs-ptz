@@ -12,6 +12,23 @@
 #include <QUdpSocket>
 #include "ptz-device.hpp"
 
+
+#define visca_encoding visca_encoding_ft
+#define visca_u4 visca_u4_ft
+#define visca_flag visca_flag_ft
+#define visca_u7 visca_u7_ft
+#define visca_s7 visca_s7_ft
+#define visca_u8 visca_u8_ft
+#define visca_s16 visca_s16_ft
+#define visca_u16 visca_u16_ft
+#define ViscaCmd ViscaCmd_ft
+#define ViscaInq ViscaInq_ft
+#define PTZVisca PTZVisca_ft
+#define ViscaUART ViscaUART_ft
+#define PTZViscaSerial PTZViscaSerial_ft
+#define ViscaUDPSocket ViscaUDPSocket_ft
+#define PTZViscaOverIP PTZViscaOverIP_ft
+
 class visca_encoding {
 public:
 	const char *name;
@@ -132,7 +149,8 @@ public:
 	}
 };
 
-class ViscaCmd {
+class ViscaCmd
+{
 public:
 	QByteArray cmd;
 	QList<visca_encoding*> args;
@@ -151,7 +169,8 @@ public:
 			target->setProperty(results[i]->name, results[i]->decode(msg));
 	}
 };
-class ViscaInq : public ViscaCmd {
+class ViscaInq : public ViscaCmd
+{
 public:
 	ViscaInq(const char *cmd_hex) : ViscaCmd(cmd_hex) { }
 	ViscaInq(const char *cmd_hex, QList<visca_encoding*> rslts) : ViscaCmd(cmd_hex, {}, rslts) {}
@@ -160,7 +179,8 @@ public:
 /*
  * VISCA Abstract base class, used for both Serial UART and UDP implementations
  */
-class PTZVisca : public PTZDevice {
+class PTZVisca : public PTZDevice
+{
 	Q_OBJECT
 
 protected:
@@ -195,12 +215,20 @@ public:
 	void memory_reset(int i);
 	void memory_set(int i);
 	void memory_recall(int i);
+
+	void pantilt_inquiry() override;
+	void zoom_inquiry() override;
+	bool got_ack() override;
+	int get_pan() override;
+	int get_tilt() override;
+	int get_zoom() override;
 };
 
 /*
  * VISCA over Serial UART classes
  */
-class ViscaUART : public QObject {
+class ViscaUART : public QObject
+{
 	Q_OBJECT
 
 private:
@@ -230,7 +258,8 @@ public slots:
 	void poll();
 };
 
-class PTZViscaSerial : public PTZVisca {
+class PTZViscaSerial : public PTZVisca
+{
 	Q_OBJECT
 
 private:

@@ -14,10 +14,15 @@
 #include <obs.hpp>
 #include <obs-frontend-api.h>
 
+#define default_preset_names default_preset_names_ft
+#define PTZDevice PTZDevice_ft
+#define PTZSimulator PTZSimulator_ft
+
 const QStringList default_preset_names({"Preset 1", "Preset 2", "Preset 3", "Preset 4", "Preset 5",
 					"Preset 6", "Preset 7", "Preset 8", "Preset 9", "Preset 10"});
 
-class PTZDevice : public QObject {
+class PTZDevice : public QObject
+{
 	Q_OBJECT
 
 protected:
@@ -51,7 +56,8 @@ public:
 	virtual OBSData get_config();
 };
 
-class PTZSimulator : public PTZDevice {
+class PTZSimulator : public PTZDevice
+{
 	Q_OBJECT
 
 public:
