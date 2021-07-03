@@ -262,7 +262,7 @@ PTZVisca::PTZVisca(std::string type)
 	connect(&timeout_timer, &QTimer::timeout, this, &PTZVisca::timeout);
 }
 
-void PTZVisca::send(ViscaCmd cmd)
+void PTZVisca::send(const ViscaCmd &cmd)
 {
 	if (cmd.cmd[1] == (char)0x01) { // command packets get sent immediately
 		send_immediate(cmd.cmd);
@@ -272,8 +272,9 @@ void PTZVisca::send(ViscaCmd cmd)
 	}
 }
 
-void PTZVisca::send(ViscaCmd cmd, QList<int> args)
+void PTZVisca::send(const ViscaCmd &cmd_, const QList<int> &args)
 {
+	ViscaCmd cmd = cmd_;
 	cmd.encode(args);
 	send(cmd);
 }
@@ -524,8 +525,9 @@ void PTZViscaSerial::reset()
 	cmd_get_camera_info();
 }
 
-void PTZViscaSerial::send_immediate(QByteArray &msg)
+void PTZViscaSerial::send_immediate(const QByteArray &msg_)
 {
+	QByteArray msg = msg_;
 	msg[0] = (char)(0x80 | address & 0x7); // Set the camera address
 	iface->send(msg);
 }
@@ -643,7 +645,7 @@ void PTZViscaOverIP::reset()
 	cmd_get_camera_info();
 }
 
-void PTZViscaOverIP::send_immediate(QByteArray &msg)
+void PTZViscaOverIP::send_immediate(const QByteArray &msg)
 {
 	QByteArray p = QByteArray::fromHex("0100000000000000") + msg;
 	p[1] = (0x9 == msg[1]) ? 0x10 : 0x00;
