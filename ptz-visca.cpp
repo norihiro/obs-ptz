@@ -348,10 +348,8 @@ void PTZVisca::send_pending()
 	send_immediate(pending_cmds.first().cmd);
 }
 
-bool PTZVisca::got_ack()
+bool PTZVisca::got_inquiry()
 {
-	if (sent_cmd[0])
-		return false;
 	if (!pending_cmds.isEmpty())
 		return false;
 	if (active_cmd[0])

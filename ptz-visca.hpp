@@ -217,7 +217,7 @@ public:
 
 	void pantilt_inquiry() override;
 	void zoom_inquiry() override;
-	bool got_ack() override;
+	bool got_inquiry() override;
 	int get_pan() override;
 	int get_tilt() override;
 	int get_zoom() override;
