@@ -285,9 +285,6 @@ class ViscaUDPSocket : public QObject {
 	Q_OBJECT
 
 private:
-	/* Global lookup table of UART instances, used to eliminate duplicates */
-	static std::map<int, ViscaUDPSocket*> interfaces;
-
 	int visca_port;
 	QUdpSocket visca_socket;
 

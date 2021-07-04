@@ -10,7 +10,6 @@
 #include <util/base.h>
 
 std::map<QString, ViscaUART*> ViscaUART::interfaces;
-std::map<int, ViscaUDPSocket*> ViscaUDPSocket::interfaces;
 
 namespace {
 const ViscaCmd VISCA_ENUMERATE("883001ff");
@@ -595,7 +594,6 @@ OBSData PTZViscaSerial::get_config()
 ViscaUDPSocket::ViscaUDPSocket(int port) :
 	visca_port(port)
 {
-	visca_socket.bind(QHostAddress::Any, visca_port);
 	connect(&visca_socket, &QUdpSocket::readyRead, this, &ViscaUDPSocket::poll);
 }
 
@@ -641,15 +639,8 @@ void ViscaUDPSocket::poll()
 
 ViscaUDPSocket * ViscaUDPSocket::get_interface(int port)
 {
-	ViscaUDPSocket *iface;
-	qDebug() << "Looking for Visca UDP Socket object" << port;
-	iface = interfaces[port];
-	if (!iface) {
-		qDebug() << "Creating new VISCA object" << port;
-		iface = new ViscaUDPSocket(port);
-		interfaces[port] = iface;
-	}
-	return iface;
+	blog(LOG_INFO, "Creating new VISCA object");
+	return new ViscaUDPSocket(port);
 }
 
 PTZViscaOverIP::PTZViscaOverIP(OBSData config)
