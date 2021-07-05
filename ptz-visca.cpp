@@ -589,8 +589,7 @@ OBSData PTZViscaSerial::get_config()
 /*
  * VISCA over IP implementation
  */
-ViscaUDPSocket::ViscaUDPSocket(int port) :
-	visca_port(port)
+ViscaUDPSocket::ViscaUDPSocket()
 {
 	connect(&visca_socket, &QUdpSocket::readyRead, this, &ViscaUDPSocket::poll);
 }
@@ -621,7 +620,7 @@ void ViscaUDPSocket::receive_datagram(QNetworkDatagram &dg)
 
 }
 
-void ViscaUDPSocket::send(QHostAddress ip_address, const QByteArray &packet)
+void ViscaUDPSocket::send(QHostAddress ip_address, int visca_port, const QByteArray &packet)
 {
 	blog(LOG_INFO, "VISCA UDP --> %s", qPrintable(packet.toHex(':')));
 	visca_socket.writeDatagram(packet, ip_address, visca_port);
@@ -635,10 +634,10 @@ void ViscaUDPSocket::poll()
 	}
 }
 
-ViscaUDPSocket * ViscaUDPSocket::get_interface(int port)
+ViscaUDPSocket * ViscaUDPSocket::get_interface()
 {
 	blog(LOG_INFO, "Creating new VISCA object");
-	return new ViscaUDPSocket(port);
+	return new ViscaUDPSocket();
 }
 
 PTZViscaOverIP::PTZViscaOverIP(OBSData config)
@@ -646,6 +645,7 @@ PTZViscaOverIP::PTZViscaOverIP(OBSData config)
 {
 	address = 1;
 	set_config(config);
+	attach_interface(ViscaUDPSocket::get_interface());
 }
 
 PTZViscaOverIP::~PTZViscaOverIP()
@@ -668,7 +668,7 @@ void PTZViscaOverIP::attach_interface(ViscaUDPSocket *new_iface)
 void PTZViscaOverIP::reset()
 {
 	sequence = 1;
-	iface->send(ip_address, QByteArray::fromHex("020000010000000001"));
+	iface->send(ip_address, visca_port, QByteArray::fromHex("020000010000000001"));
 	send(VISCA_Clear);
 	cmd_get_camera_info();
 }
@@ -684,25 +684,26 @@ void PTZViscaOverIP::send_immediate(const QByteArray &msg)
 	p[7] = sequence & 0xff;
 	p[8] = '\x81';
 	sequence++;
-	iface->send(ip_address, p);
+	iface->send(ip_address, visca_port, p);
 }
 
 void PTZViscaOverIP::set_config(OBSData config)
 {
 	PTZDevice::set_config(config);
 	const char *ip = obs_data_get_string(config, "address");
-	if (ip)
+	if (ip) {
 		ip_address = QHostAddress(ip);
+	}
 	int port = obs_data_get_int(config, "port");
 	if (!port)
 		port = 52381;
-	attach_interface(ViscaUDPSocket::get_interface(port));
+	visca_port = port;
 }
 
 OBSData PTZViscaOverIP::get_config()
 {
 	OBSData config = PTZDevice::get_config();
 	obs_data_set_string(config, "address", qPrintable(ip_address.toString()));
-	obs_data_set_int(config, "port", iface->port());
+	obs_data_set_int(config, "port", visca_port);
 	return config;
 }

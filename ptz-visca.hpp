@@ -285,7 +285,6 @@ class ViscaUDPSocket : public QObject {
 	Q_OBJECT
 
 private:
-	int visca_port;
 	QUdpSocket visca_socket;
 
 signals:
@@ -293,12 +292,11 @@ signals:
 	void reset();
 
 public:
-	ViscaUDPSocket(int port = 52381);
+	ViscaUDPSocket();
 	void receive_datagram(QNetworkDatagram &datagram);
-	void send(QHostAddress ip_address, const QByteArray &packet);
-	int port() { return visca_port; }
+	void send(QHostAddress ip_address, int visca_port, const QByteArray &packet);
 
-	static ViscaUDPSocket *get_interface(int port);
+	static ViscaUDPSocket *get_interface();
 
 public slots:
 	void poll();
@@ -310,6 +308,7 @@ class PTZViscaOverIP : public PTZVisca {
 private:
 	int sequence;
 	QHostAddress ip_address;
+	int visca_port;
 	ViscaUDPSocket *iface;
 	void attach_interface(ViscaUDPSocket *iface);
 
