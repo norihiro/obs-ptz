@@ -694,14 +694,25 @@ void PTZViscaOverIP::send_immediate(const QByteArray &msg)
 void PTZViscaOverIP::set_config(OBSData config)
 {
 	PTZDevice::set_config(config);
+	bool changed = false;
 	const char *ip = obs_data_get_string(config, "address");
 	if (ip) {
-		ip_address = QHostAddress(ip);
+		QHostAddress ha(ip);
+		if (ha != ip_address) {
+			ip_address = ha;
+			changed = true;
+		}
 	}
 	int port = obs_data_get_int(config, "port");
 	if (!port)
 		port = 52381;
-	visca_port = port;
+	if (port!=visca_port) {
+		visca_port = port;
+		changed = true;
+	}
+
+	if (changed && iface)
+		reset();
 }
 
 OBSData PTZViscaOverIP::get_config()
