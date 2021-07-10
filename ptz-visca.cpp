@@ -9,7 +9,9 @@
 #include "ptz-visca.hpp"
 #include <util/base.h>
 
+#ifdef WITH_PTZ_SERIAL
 std::map<QString, ViscaUART*> ViscaUART::interfaces;
+#endif // WITH_PTZ_SERIAL
 
 namespace {
 const ViscaCmd VISCA_ENUMERATE("883001ff");
@@ -440,6 +442,7 @@ int PTZVisca::get_zoom()
 	return property("zoom_pos").toInt();
 }
 
+#ifdef WITH_PTZ_SERIAL
 /*
  * VISCA over serial UART implementation
  */
@@ -585,6 +588,7 @@ OBSData PTZViscaSerial::get_config()
 	obs_data_set_int(config, "address", address);
 	return config;
 }
+#endif // WITH_PTZ_SERIAL
 
 /*
  * VISCA over IP implementation

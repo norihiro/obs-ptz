@@ -16,8 +16,10 @@ PTZDevice *PTZDevice::make_device(OBSData config)
 
 	if (type == "sim")
 		ptz = new PTZSimulator(config);
+#ifdef WITH_PTZ_SERIAL
 	if (type == "visca")
 		ptz = new PTZViscaSerial(config);
+#endif // WITH_PTZ_SERIAL
 	if (type == "visca-over-ip")
 		ptz = new PTZViscaOverIP(config);
 	return ptz;

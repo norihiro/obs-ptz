@@ -8,7 +8,9 @@
 
 #include <QObject>
 #include <QTimer>
+#ifdef WITH_PTZ_SERIAL
 #include <QSerialPort>
+#endif // WITH_PTZ_SERIAL
 #include <QUdpSocket>
 #include "ptz-device.hpp"
 
@@ -24,8 +26,10 @@
 #define ViscaCmd ViscaCmd_ft
 #define ViscaInq ViscaInq_ft
 #define PTZVisca PTZVisca_ft
+#ifdef WITH_PTZ_SERIAL
 #define ViscaUART ViscaUART_ft
 #define PTZViscaSerial PTZViscaSerial_ft
+#endif // WITH_PTZ_SERIAL
 #define ViscaUDPSocket ViscaUDPSocket_ft
 #define PTZViscaOverIP PTZViscaOverIP_ft
 
@@ -224,6 +228,7 @@ public:
 	void timeout() override;
 };
 
+#ifdef WITH_PTZ_SERIAL
 /*
  * VISCA over Serial UART classes
  */
@@ -277,6 +282,7 @@ public:
 	void set_config(OBSData ptz_data);
 	OBSData get_config();
 };
+#endif // WITH_PTZ_SERIAL
 
 /*
  * VISCA over IP classes
