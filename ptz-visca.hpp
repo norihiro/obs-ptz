@@ -47,7 +47,7 @@ public:
 	void encode(QByteArray &data, int val) {
 		if (data.size() < offset + 1)
 			return;
-		data[offset] = data[offset] & 0xf0 | val & 0x0f;
+		data[offset] = (data[offset] & 0xf0) | (val & 0x0f);
 	}
 	int decode(QByteArray &data) {
 		return (data.size() < offset + 1) ? 0 : data[offset] & 0xf;
@@ -165,7 +165,7 @@ public:
 	ViscaCmd(const char *cmd_hex, QList<visca_encoding*> args, QList<visca_encoding*> rslts) :
 		cmd(QByteArray::fromHex(cmd_hex)), args(args), results(rslts) { }
 	void encode(const QList<int> &arglist) {
-		for (int i = 0; i < arglist.size(), i < args.size(); i++)
+		for (int i = 0; i < arglist.size() && i < args.size(); i++)
 			args[i]->encode(cmd, arglist[i]);
 	}
 	void decode(QObject *target, QByteArray msg) {
@@ -204,20 +204,20 @@ protected slots:
 public:
 	PTZVisca(std::string type);
 
-	virtual void set_config(OBSData ptz_data) = 0;
-	virtual OBSData get_config() = 0;
+	void set_config(OBSData ptz_data) override = 0;
+	OBSData get_config() override = 0;
 
 	void cmd_get_camera_info();
-	void pantilt(int pan, int tilt);
-	void pantilt_rel(int pan, int tilt);
-	void pantilt_stop();
-	void pantilt_home();
-	void zoom_stop();
-	void zoom_tele(int speed);
-	void zoom_wide(int speed);
-	void memory_reset(int i);
-	void memory_set(int i);
-	void memory_recall(int i);
+	void pantilt(int pan, int tilt) override;
+	void pantilt_rel(int pan, int tilt) override;
+	void pantilt_stop() override;
+	void pantilt_home() override;
+	void zoom_stop() override;
+	void zoom_tele(int speed) override;
+	void zoom_wide(int speed) override;
+	void memory_reset(int i) override;
+	void memory_set(int i) override;
+	void memory_recall(int i) override;
 
 	void pantilt_inquiry() override;
 	void zoom_inquiry() override;
@@ -279,8 +279,8 @@ public:
 	PTZViscaSerial(OBSData config);
 	~PTZViscaSerial();
 
-	void set_config(OBSData ptz_data);
-	OBSData get_config();
+	void set_config(OBSData ptz_data) override;
+	OBSData get_config() override;
 };
 #endif // WITH_PTZ_SERIAL
 
@@ -326,6 +326,6 @@ public:
 	PTZViscaOverIP(OBSData config);
 	~PTZViscaOverIP();
 
-	void set_config(OBSData ptz_data);
-	OBSData get_config();
+	void set_config(OBSData ptz_data) override;
+	OBSData get_config() override;
 };
